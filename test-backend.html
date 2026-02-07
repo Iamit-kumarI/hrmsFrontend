@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS Backend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-200 { background: #dcfce7; color: #16a34a; }
+        .status-error { background: #fee2e2; color: #dc2626; }
+    </style>
+</head>
+<body>
+    <h1>🧪 HRMS Backend Connectivity Test</h1>
+    <p>This page tests if your frontend can connect to the backend API.</p>
+
+    <div class="test-section">
+        <h2>1️⃣ Test Employees Endpoint</h2>
+        <button onclick="testEmployees()">Test GET /api/employees</button>
+        <div id="employees-result" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2️⃣ Test Attendance Summary</h2>
+        <button onclick="testAttendanceSummary()">Test GET /api/attendance/summary</button>
+        <div id="attendance-result" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3️⃣ Test All Endpoints</h2>
+        <button onclick="testAll()">Run All Tests</button>
+        <div id="all-result" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Quick Checks</h2>
+        <ul>
+            <li>Backend should be running on: <code>http://localhost:8080</code></li>
+            <li>CORS should be enabled for: <code>http://localhost:3000</code></li>
+            <li>Check browser console (F12) for detailed errors</li>
+        </ul>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+
+        async function testEmployees() {
+            const resultDiv = document.getElementById('employees-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>🔄 Testing...</p>';
+
+            try {
+                console.log('Testing:', `${API_URL}/employees`);
+                const response = await fetch(`${API_URL}/employees`);
+                
+                const status = response.status;
+                const statusClass = response.ok ? 'status-200' : 'status-error';
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ SUCCESS!</p>
+                    <p>Status: <span class="${statusClass} status">${status} OK</span></p>
+                    <p>Found ${data.length} employees</p>
+                    <p><strong>Response:</strong></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                console.log('✅ Employees:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ FAILED!</p>
+                    <p>Error: ${error.message}</p>
+                    <p><strong>Possible issues:</strong></p>
+                    <ul>
+                        <li>Backend is not running on port 8080</li>
+                        <li>CORS is not enabled on backend</li>
+                        <li>Network/firewall blocking connection</li>
+                    </ul>
+                    <p>Check browser console (F12) for more details.</p>
+                `;
+                console.error('❌ Error:', error);
+            }
+        }
+
+        async function testAttendanceSummary() {
+            const resultDiv = document.getElementById('attendance-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>🔄 Testing...</p>';
+
+            try {
+                console.log('Testing:', `${API_URL}/attendance/summary`);
+                const response = await fetch(`${API_URL}/attendance/summary`);
+                
+                const status = response.status;
+                const statusClass = response.ok ? 'status-200' : 'status-error';
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ SUCCESS!</p>
+                    <p>Status: <span class="${statusClass} status">${status} OK</span></p>
+                    <p>Present: ${data.present?.length || 0}, Absent: ${data.absent?.length || 0}</p>
+                    <p><strong>Response:</strong></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                console.log('✅ Attendance:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ FAILED!</p>
+                    <p>Error: ${error.message}</p>
+                `;
+                console.error('❌ Error:', error);
+            }
+        }
+
+        async function testAll() {
+            const resultDiv = document.getElementById('all-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>🔄 Running all tests...</p>';
+
+            const results = [];
+
+            // Test 1: Employees
+            try {
+                const response = await fetch(`${API_URL}/employees`);
+                const data = await response.json();
+                results.push({
+                    test: 'GET /api/employees',
+                    status: response.status,
+                    success: response.ok,
+                    data: data.length + ' employees'
+                });
+            } catch (error) {
+                results.push({
+                    test: 'GET /api/employees',
+                    status: 'ERROR',
+                    success: false,
+                    data: error.message
+                });
+            }
+
+            // Test 2: Attendance Summary
+            try {
+                const response = await fetch(`${API_URL}/attendance/summary`);
+                const data = await response.json();
+                results.push({
+                    test: 'GET /api/attendance/summary',
+                    status: response.status,
+                    success: response.ok,
+                    data: `${data.present?.length || 0} present, ${data.absent?.length || 0} absent`
+                });
+            } catch (error) {
+                results.push({
+                    test: 'GET /api/attendance/summary',
+                    status: 'ERROR',
+                    success: false,
+                    data: error.message
+                });
+            }
+
+            // Display results
+            let html = '<h3>Test Results:</h3>';
+            results.forEach(r => {
+                const icon = r.success ? '✅' : '❌';
+                const statusClass = r.success ? 'status-200' : 'status-error';
+                html += `
+                    <div style="margin: 10px 0; padding: 10px; background: ${r.success ? '#f0fdf4' : '#fef2f2'}; border-radius: 5px;">
+                        <p><strong>${icon} ${r.test}</strong></p>
+                        <p>Status: <span class="${statusClass} status">${r.status}</span></p>
+                        <p>Result: ${r.data}</p>
+                    </div>
+                `;
+            });
+
+            const allSuccess = results.every(r => r.success);
+            if (allSuccess) {
+                html = '<p class="success">🎉 All tests passed! Backend is working correctly.</p>' + html;
+            } else {
+                html = '<p class="error">⚠️ Some tests failed. Check the results below.</p>' + html;
+            }
+
+            resultDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
